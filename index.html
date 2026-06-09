@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dongkoh</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤫</text></svg>">
+</head>
+<body>
+<div id="app">
+
+  <div id="filters">
+    <div class="filter-row" id="year-filters"></div>
+    <div class="filter-row" id="cat-filters"></div>
+  </div>
+
+  <div id="loading">pls wait ...<span id="loading-cursor">|</span></div>
+  <div id="carousel"></div>
+
+  <div id="project-page">
+    <div id="project-scroll">
+      <div id="project-header">
+        <div id="project-body-text"></div>
+      </div>
+      <div id="project-images"></div>
+      <div id="project-meta"></div>
+    </div>
+  </div>
+
+  <div id="about-page">
+    <div id="about-scroll">
+      <div id="about-text"></div>
+    </div>
+  </div>
+
+  <div id="personal-page">
+    <div id="personal-filters">
+      <div class="filter-row" id="personal-year-filters"></div>
+      <div class="filter-row" id="personal-cat-filters"></div>
+    </div>
+    <div id="personal-scroll">
+      <div id="personal-grid"></div>
+    </div>
+  </div>
+
+  <div id="bottom-nav">
+    <div id="menu">
+      <button class="menu-btn active" data-section="work">Work Works</button>
+      <button class="menu-btn" data-section="personal">Personal Works</button>
+      <button class="menu-btn" data-section="about">About</button>
+      <button class="menu-btn" data-section="cv">CV</button>
+    </div>
+  </div>
+
+</div>
+<script type="module" src="/main.js"></script>
+</body>
+</html>
