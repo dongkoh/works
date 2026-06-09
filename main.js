@@ -476,10 +476,10 @@ function triggerFilterEnter(el) {
 }
 
 function showPersonalWorks() {
-  triggerFilterEnter(document.getElementById('personal-filters'));
   renderPersonalGrid();
   document.getElementById('personal-scroll').scrollTop = 0;
   showPage('personal-page');
+  requestAnimationFrame(() => triggerFilterEnter(document.getElementById('personal-filters')));
 }
 
 document.getElementById('project-page').addEventListener('click', () => hidePage('project-page'));

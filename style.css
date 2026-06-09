@@ -155,7 +155,7 @@ html, body {
 }
 
 #project-body-text, #about-text {
-  max-width: calc(30vw);
+  max-width: 30vw;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -286,7 +286,7 @@ html, body {
   z-index: 100;
 }
 
-#menu { display: flex; gap: 40px; }
+#menu { display: flex; gap: 48px; }
 
 .menu-btn {
   font-size: 13px;
@@ -321,3 +321,9 @@ html, body {
   50%       { opacity: 0; }
 }
 #loading-cursor { animation: blink 1s step-end infinite; }
+
+@media (max-width: 768px) {
+  #project-body-text, #about-text { max-width: 70vw; }
+  #menu { gap: 24px; }
+  .pw-thumb-wrap { aspect-ratio: 1 / 1; }
+}
