@@ -326,4 +326,5 @@ html, body {
   #project-body-text, #about-text { max-width: 70vw; }
   #menu { gap: 24px; }
   .pw-thumb-wrap { aspect-ratio: 1 / 1; }
+  #personal-grid { padding-top: 15vh; }
 }
