@@ -28,27 +28,28 @@ function driveImg(url, size = 'w400') {
 }
 
 // ── Data ───────────────────────────────────────────────────
-function parseCSVLine(line) {
-  const cells = [];
-  let cur = '', inQuote = false;
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
+function parseCSV(text) {
+  const rows = [];
+  let row = [], cur = '', inQuote = false;
+  const str = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trimEnd();
+
+  for (let i = 0; i < str.length; i++) {
+    const ch = str[i];
     if (inQuote) {
-      if (ch === '"' && line[i + 1] === '"') { cur += '"'; i++; }
+      if (ch === '"' && str[i + 1] === '"') { cur += '"'; i++; }
       else if (ch === '"') inQuote = false;
       else cur += ch;
     } else {
-      if (ch === '"') inQuote = true;
-      else if (ch === ',') { cells.push(cur); cur = ''; }
+      if      (ch === '"')  inQuote = true;
+      else if (ch === ',')  { row.push(cur); cur = ''; }
+      else if (ch === '\n') { row.push(cur); cur = ''; rows.push(row); row = []; }
       else cur += ch;
     }
   }
-  cells.push(cur);
-  return cells;
-}
+  row.push(cur);
+  if (row.some(c => c !== '')) rows.push(row);
 
-function parseCSV(text) {
-  return text.trim().split('\n').map(line => parseCSVLine(line.replace(/\r$/, '')));
+  return rows;
 }
 
 async function fetchSheetRows(url) {
@@ -395,20 +396,23 @@ function hidePage(id) {
 function showProject(p) {
   const textEl = document.getElementById('project-body-text');
   textEl.innerHTML = '';
-  const hasOverview = isReal(p.Overview);
-  const hasTakeaway = isReal(p.Takeaway);
-  if (!hasOverview && !hasTakeaway) {
+  const kor = p['Context(KOR)'];
+  const eng = p['Context(ENG)'];
+  if (!isReal(kor) && !isReal(eng)) {
     const el = document.createElement('p');
     el.textContent = WRITING_PLACEHOLDER;
     el.style.opacity = '0.35';
     textEl.appendChild(el);
   } else {
-    [p.Overview, p.Takeaway].forEach(txt => {
-      if (!isReal(txt)) return;
-      const el = document.createElement('p');
-      el.textContent = txt;
-      textEl.appendChild(el);
+    const row = document.createElement('div');
+    row.className = 'context-row';
+    [[kor, 'kor'], [eng, 'eng']].forEach(([txt, lang]) => {
+      const col = document.createElement('div');
+      col.className = `context-col ${lang}`;
+      col.textContent = isReal(txt) ? txt : '';
+      row.appendChild(col);
     });
+    textEl.appendChild(row);
   }
 
   const imgsEl = document.getElementById('project-images');

@@ -154,7 +154,13 @@ html, body {
   margin-bottom: 20px;
 }
 
-#project-body-text, #about-text {
+#project-body-text {
+  display: block;
+  font-size: 13px;
+  font-weight: 300;
+}
+
+#about-text {
   max-width: 30vw;
   display: flex;
   flex-direction: column;
@@ -162,7 +168,24 @@ html, body {
   font-size: 13px;
   font-weight: 300;
   line-height: 1.5;
+  white-space: pre-wrap;
 }
+
+.context-row {
+  display: flex;
+  gap: 10px;
+}
+
+.context-col {
+  flex: 1;
+  max-width: 30vw;
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.context-col.eng { opacity: 0.3; }
 
 #project-images {
   display: grid;
@@ -323,7 +346,9 @@ html, body {
 #loading-cursor { animation: blink 1s step-end infinite; }
 
 @media (max-width: 768px) {
-  #project-body-text, #about-text { max-width: 70vw; }
+  #about-text { max-width: 70vw; }
+  .context-row { flex-direction: column; gap: 16px; }
+  .context-col { max-width: 70vw; }
   #menu { gap: 24px; }
   .pw-thumb-wrap { aspect-ratio: 1 / 1; }
   #personal-grid { padding-top: 15vh; }
