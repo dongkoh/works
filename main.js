@@ -460,8 +460,11 @@ function showProject(p) {
     metaEl.appendChild(el);
   }
 
-  document.getElementById('project-scroll').scrollTop = 0;
   showPage('project-page');
+  // Reset after the page is shown — setting scrollTop while display:none is ignored.
+  const scroll = document.getElementById('project-scroll');
+  scroll.scrollTop = 0;
+  requestAnimationFrame(() => { scroll.scrollTop = 0; });
 }
 
 function showAbout() {
