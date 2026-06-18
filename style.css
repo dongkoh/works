@@ -1,6 +1,6 @@
 @import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css);
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; cursor: none !important; }
 
 html, body {
   width: 100%; height: 100%; overflow: hidden;
@@ -134,9 +134,26 @@ html, body {
 
 #project-page {
   z-index: 52;
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cpath d='M48 28H10M10 28L22 16M10 28L22 40' stroke='black' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 10 28, auto;
 }
-#project-page * { cursor: inherit; }
+
+#custom-cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 56px;
+  height: 56px;
+  margin-left: -10px;
+  margin-top: -28px;
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: difference;
+  transform-origin: 10px 28px;
+  transition: transform 0.12s ease-out;
+  transform: rotate(-45deg); /* default: top-left ↖ */
+  display: none;
+}
+#custom-cursor.project { transform: rotate(0deg);   } /* project page: left ← */
+#custom-cursor.link    { transform: rotate(135deg); } /* link hover: top-right ↗ */
 
 #project-scroll, #about-scroll {
   flex: 1;
@@ -151,7 +168,7 @@ html, body {
 }
 
 #project-header {
-  margin-bottom: 20px;
+  margin-bottom: 40px;
 }
 
 #project-body-text {
@@ -188,9 +205,10 @@ html, body {
 .context-col.eng { opacity: 0.3; }
 
 #project-images {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  max-width: calc(60vw + 10px);
   margin-bottom: 12px;
 }
 
@@ -211,7 +229,7 @@ html, body {
   display: block;
 }
 
-#project-meta { font-size: 13px; line-height: 1.5; margin-bottom: 8px; }
+#project-meta { font-size: 13px; line-height: 1.5; margin-bottom: 20px; margin-top: 40px; }
 .p-title-line { font-weight: 500; }
 .p-brand-line { font-weight: 300; }
 
@@ -271,11 +289,13 @@ html, body {
   display: block;
   font-size: 13px;
   font-weight: 300;
-  color: #000;
-  text-decoration: underline;
+  color: #0000ff;
+  text-decoration: none;
   word-break: break-all;
 }
-.p-link-line:hover { opacity: 0.6; }
+#project-page .p-link-line:hover {
+  text-decoration: underline;
+}
 
 .pw-card-info {
   padding: 6px 0 10px;
@@ -349,6 +369,7 @@ html, body {
   #about-text { max-width: 70vw; }
   .context-row { flex-direction: column; gap: 16px; }
   .context-col { max-width: 70vw; }
+  #project-images { max-width: 70vw; }
   #menu { gap: 24px; }
   .pw-thumb-wrap { aspect-ratio: 1 / 1; }
   #personal-grid { padding-top: 15vh; }

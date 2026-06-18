@@ -383,14 +383,21 @@ function showPage(id) {
   if (_hideTimers[id]) { clearTimeout(_hideTimers[id]); delete _hideTimers[id]; }
   const page = document.getElementById(id);
   page.style.display = 'flex';
-  requestAnimationFrame(() => page.classList.add('visible'));
+  page.style.pointerEvents = '';
+  requestAnimationFrame(() => { page.classList.add('visible'); updateCursorState(); });
 }
 
 function hidePage(id) {
   const page = document.getElementById(id);
   if (!page.classList.contains('visible')) return;
   page.classList.remove('visible');
-  _hideTimers[id] = setTimeout(() => { page.style.display = 'none'; delete _hideTimers[id]; }, 250);
+  // Drop hit-testing immediately so the cursor reacts to what's underneath right away.
+  page.style.pointerEvents = 'none';
+  updateCursorState();
+  _hideTimers[id] = setTimeout(() => {
+    page.style.display = 'none';
+    delete _hideTimers[id];
+  }, 250);
 }
 
 function showProject(p) {
@@ -419,7 +426,6 @@ function showProject(p) {
   imgsEl.innerHTML = '';
   const validUrls = ['Img URL 1', 'Img URL 2', 'Img URL 3', 'Img URL 4']
     .map(k => driveImg(p[k], 'w1200')).filter(Boolean);
-  imgsEl.style.gridTemplateColumns = validUrls.length === 1 ? '1fr' : '1fr 1fr';
   validUrls.forEach((url, i) => {
     const wrap = document.createElement('div');
     wrap.className = 'p-img-wrap';
@@ -450,6 +456,7 @@ function showProject(p) {
     el.target = '_blank';
     el.rel = 'noopener noreferrer';
     el.textContent = p['Link URL'];
+    el.addEventListener('click', e => e.stopPropagation());
     metaEl.appendChild(el);
   }
 
@@ -487,6 +494,26 @@ function showPersonalWorks() {
 }
 
 document.getElementById('project-page').addEventListener('click', () => hidePage('project-page'));
+
+// ── Custom cursor (single rotating arrow, blended against background) ──
+const cursorEl = document.getElementById('custom-cursor');
+let lastX = 0, lastY = 0;
+function updateCursorState() {
+  const el = document.elementFromPoint(lastX, lastY);
+  const overLink = el && el.closest && el.closest('a');
+  const overProject = el && el.closest && el.closest('#project-page');
+  cursorEl.classList.toggle('link', !!overLink);
+  cursorEl.classList.toggle('project', !!overProject && !overLink);
+}
+document.addEventListener('pointermove', e => {
+  lastX = e.clientX;
+  lastY = e.clientY;
+  cursorEl.style.display = 'block';
+  cursorEl.style.left = `${e.clientX}px`;
+  cursorEl.style.top = `${e.clientY}px`;
+  updateCursorState();
+});
+document.addEventListener('pointerleave', () => { cursorEl.style.display = 'none'; });
 
 // ── Bottom nav ─────────────────────────────────────────────
 document.querySelectorAll('#menu .menu-btn').forEach(btn => {
@@ -527,12 +554,15 @@ Promise.all([
   buildFilterState(ww, 'year-filters', 'cat-filters', () => fadeAndRebuild());
   buildFilterState(pw, 'personal-year-filters', 'personal-cat-filters', () => renderPersonalGrid());
 
+  // Gate on the thumbnails actually shown first (Personal Works grid).
   const thumbUrls = [...new Set(
-    ww.data.map(p => driveImg(p['Img URL 1']) || driveImg(p['Img URL 2'])).filter(Boolean)
+    pw.data.map(p => driveImg(p['Img URL 1']) || driveImg(p['Img URL 2'])).filter(Boolean)
   )];
+  // Wait for every visible thumbnail to finish (preloadImg resolves on error too,
+  // so broken images won't hang it). 20s safety cap for stalled network.
   await Promise.race([
     Promise.all(thumbUrls.map(preloadImg)),
-    new Promise(resolve => setTimeout(resolve, 3000)),
+    new Promise(resolve => setTimeout(resolve, 20000)),
   ]);
 
   document.getElementById('loading').style.display = 'none';
@@ -541,13 +571,18 @@ Promise.all([
     document.getElementById('carousel').style.opacity = '1';
     document.getElementById('filters').style.opacity = '1';
   }));
+  showPersonalWorks();
 
-  const fullImgUrls = [...new Set(
-    ww.data.flatMap(p =>
-      ['Img URL 1', 'Img URL 2', 'Img URL 3', 'Img URL 4'].map(k => driveImg(p[k], 'w1200')).filter(Boolean)
-    )
-  )];
-  fullImgUrls.forEach(url => { const img = new Image(); img.src = url; });
+  // Defer heavy full-res preloading so it doesn't compete with the visible grid.
+  const idle = window.requestIdleCallback || (cb => setTimeout(cb, 1500));
+  idle(() => {
+    const fullImgUrls = [...new Set(
+      [...ww.data, ...pw.data].flatMap(p =>
+        ['Img URL 1', 'Img URL 2', 'Img URL 3', 'Img URL 4'].map(k => driveImg(p[k], 'w1200')).filter(Boolean)
+      )
+    )];
+    fullImgUrls.forEach(url => { const img = new Image(); img.src = url; });
+  });
 }).catch(err => {
   document.getElementById('loading').textContent = 'Failed to load data';
   console.error(err);
